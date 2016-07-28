@@ -1,0 +1,34 @@
+Rotaru Alexandru Andrei 335CC
+
+Implementarea temei:
+	Am folosit scheletul oferit si am completat codul necesar pentru luarea
+	testelor.
+
+    Mi-am adauga in debug_help niste macro-uri de debug si am folosit in tema
+    un macro wrapper peste dup2 pe care il consider cool, asta permitandu-mi
+    apeluri de forma: redirect (old_fd) to (new_fd).
+
+	In functia parse_simple verific parametrii, apoi daca este comanda interna
+    sau asignare de variabile de mediu. Dupa aceasta verificare incep
+    redirectarea celor 3 fisiere standard. Redirectarea stdin o fac simplu,
+    insa redirectarea stderr si stdout o fac cu niste verificari mai complexe.
+    Verific daca trebuie sa creez un inlocuitor pt stdout sau stderr si il
+    deschid in modul in care trebuie (regular sau append). Daca cele 2 fisiere
+    (out si err) dechid acelasi fisier atunci redeschid out in modul append.
+    Dupa ce am creat fisierele le redirectez, execut binarul comenzii si astept
+    in procesul parinte ca procesul copil sa-si termine executia.
+
+    Pentru executie in paralel fac un fork, in procesul copil execut comanda
+    1 iar in procesul parinte mai fac in un fork pentru al doilea copil si
+    in acesta execut comanda 2. La final astept cele 2 procese copil sa-si
+    termine executia. Exetuia procelor cu pipe-uri se face creand un pipe,
+    inchizand capatul de citire in procesul fiu care executa prima comanda si
+    redirectand in prealabil stdout iar in procesul parinte inchid captul de
+    scriere si redirectez stdout la captul de ciire. La final astept procesul
+    copil.
+    In parse command nu fac decat sa apelez functiile adecvate si dupa caz
+    sa execut conditionat. Valoare de retur o interpretez ca 1 fiind cu
+    success si 0 esec pentru a avea o coerenta cu functiile care returneaza
+    bool.
+
+    Timp de lucru 12 ore.

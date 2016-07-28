@@ -1,0 +1,34 @@
+Rotaru Alexandru Andrei 335CC
+
+Implementare:
+	Dupa verificarile de argumente din linie de comanda dechid fisierele de input.
+	Daca avem doar un parametru, stream-ul este setat pe stdin, daca nu se parcurg
+	numele fisierelor de intrare si se seteaza stream-ul pe unul dintre acestea si
+	se apeleaza functia de executare a comenzilor dintr-un singur fisier. Pe langa
+	stream-ul de input, da ca parametru si un pointer catre o structura de tip
+	hashtable. Citesc fisierul linie cu linie si il parsez folosind 2 ptr char
+	care sa retina argumentele unei comenzi si un enum command pentru tipul comenzii.
+	Dupa ce am parsat, apelez rutina de executie a comenzii pe argumentel respective.
+	Folosesc un switch in care in functie de command si argumente apelez functii
+	pe structura de tip hashtable.
+	
+	Hashtable-ul are 2 pointer la functii(functia de hash, si functia de comparare
+	a 2 entry-uri), o tabela de pointeri la Lista si dimensiunea. La operatii
+	precum add, remove, find calculez functia de hash pe datele date ca input.
+	
+	Listele sunt formate din 2 membrii. Un membru garda pt head de tip dedicat 
+	pentru acest lucru (nodul are doar pointerul next, care va pointa mereu catre
+	nodul head) si un membru garda tail de tip dedicat pentru a retine nodul 
+	tail din lista efectiva(are doar pointerul prev). Intre acesti 2 pointeri
+	se introduc noi noduri care au si next si prev si retin informatia utila din
+	tabela de dispersie.
+	
+	Am incercat sa verific inputurile tuturor functiilor pentru a scapa de parametrii
+	null, sau dimensiuni 0. De asemenea toate structurile de date sunt generice
+	(datele efective se retin intr-un pointer void). 
+	
+	Probleme aparute: din cauza genericitatii si permisiviatii mediului linux de 
+	a declara variabile unde doresc.
+	
+	Timp de lucru: 15 ore lucru efecti + 5 ore pentru a porta pe windows si scris
+	acest readme(readme a luat putin).

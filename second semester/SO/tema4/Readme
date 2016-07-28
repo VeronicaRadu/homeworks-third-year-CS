@@ -1,0 +1,52 @@
+Rotaru Alexandru Andrei 335CC
+
+In implementarea temei am realizat o structuri de coada cu priortitati si liste generice, o structura
+task_chunk_t (nu este neaparat cel mai bun nume) pentru a reprezenta task_struct in
+cadrul implementarii mele si o serie de functii de debug ajutatoare pe care le-am pus
+in fisierul debug.h.
+
+
+In cadrul fisierului task_chunk.c am creat functiiel de comparare si alte functii ajutatoare
+pe care le folosesc in creaarea si buna-functionare a cozii cu prioritati. Deoarece in heap
+nu prea se tine cont de ordinea in care se introduc in coada elementele dar si pentru ca se
+cere o coada circulara, la fiecare introducere in coada updatez time_stamp-ul elementului inserat
+deaorece doresc ca in coada acesta sa fie pus cat mai la final daca mai multe elemente au aceeasi
+prioritate. De aceea functia de comparare tine cont si de time_stamp-ul threadurilor.
+
+In cadrul fisierului so_scheduler.c care oferea implementarea api-ului pentru testerul temei
+am creat 2 noi functii : schedule ce are rolul de a pune in starea running thread-ul cu prioritatea
+cea mai mare si sa faca in generala arbitrarea threadurilor si functia start_thread pe care o
+folosesc pentru a sincronzia executia functiei date ca parametru threadului cu deciziile
+schedulerului.
+
+Schedule are logica cea mai complicata (dupa swift_or_percolate din priority_queue.c) si in functie
+de threadurile din coada sau din starea running ia decizii de arbitrare. Daca nu exista nici threaduri
+in starea running si nici in coada de ready, atunci se iese din functie. Daca exista un task in starea
+running dar nici unul in coada se reinitializeaza cuata de timp curenta. Daca rnning thread este null
+atunci se ia din coada cel mai prioritar thread si se pune in starea running. Iar daca cuanta de timp
+curenta a expirat si exista un thread in coada cel putin la fel de prioritar sau cuanta de timp nu a
+expirat dar exista un thread mai prioritar se face schimbarea threadului in starea running, si se
+introduce threadul running inapoi in coada de ready.
+
+Functia init se ocupa de intializarea variabilelor declarate static la inceptul fisierului.
+Functia fork creeaza un nou thread , incrementeaza numarul de threaduri din sistem, introduce noul
+thread in coada de ready si daca e primul thread inserta, acesta este scos si ii se da signal pentru
+a se putea debloca din wait-ul din functia start_thread. Daca nu e primul thread in sistem se da
+schedule pentru a verifica daca este nevoie de preemtare.
+
+Pentru fiecare device am o lista in care se adauga threadurile care astepta semnal pe acel device.
+In functia wait, introduc threadul curent in coada asociata device-ului cu indexul dat ca prametru
+apelez schedulerul si astept semaphor-ul acestui thread pentru a nu se executa intre timp.
+
+In functia signal, toate threadurile din lista de asteptare device-ului sunt puse in coada ready,
+se apeleaza schedule si se returneaza numarul de threaduri din coada.
+
+Functia exec doar scade cuanta de timp curenta si apeleaza schedule.
+
+In functia so_end astept threadurile din lista terminated si eliberez resursele alocate.
+
+Obs. La tema anterioara mi s-a scazut deoarece am avut cod inutil. As vrea sa precizez faptul ca nu
+scriu codul unei structuri de date specific daor pentru ce am nevoie intr-o anumita tema. Scriu
+structura sau codul cat mai general-purpose posibil ca daca am nevoie in alte cazuri sa le pot
+folosi fara sa le reimplementez. De aceea mai exista functii in cod pe care nu le apelez niciodata.
+PS. Am folosit lista folosita in tema 3 si in tema asta fara probleme.

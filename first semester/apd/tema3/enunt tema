@@ -1,0 +1,113 @@
+Tema 3 - Sudoku
+
+Sudoku
+
+Introducere
+Stabilire topologie
+Calculare
+Testare si rulare
+Punctaje
+Continutul arhivei temei
+
+1. Introducere
+Tema isi propune sa rezolve puzzle-uri de tip sudoku folosind o retea de procese distribuite MPI. 
+2. Stabilire topologie
+La pornire, fiecare proces MPI va citi dintr-un fisier lista sa de adiacenta. In acest mod fiecare nod cunoaste doar nodurile cu care este conectat direct si poate comunica doar cu acestea.
+
+In acest moment fiecare nod al grafului va rula algoritmul de stabilire a topologiei folosind mesaje de sondaj cu ecou (gasiti o descriere a algoritmului in laboratorul de stabilire a topologiei) pentru a genera o tabela de routare. Fiecare proces va afisa tabela creata.
+
+Output-ul fiecarui proces va contine pe prima linie id-ul sau, iar apoi pe urmatoarele linii intrarile din tabela proprie de routare de la un nod sursa catre un nod destinatie. De asemenea, procesul cu id-ul 0 va afisa intreaga matrice de adiacenta.
+
+Exemplu de fisier de intrare ce contine topologia retelei MPI:
+0 - 1 2
+1 - 0 3 4 5 6
+2 - 0 7 8
+3 - 1
+4 - 1 9 10
+5 - 1
+6 - 1
+7 - 2
+8 - 2 11
+9 - 4
+10 - 4
+11 - 8
+
+In cazul de mai sus se considera un singur fisier din care fiecare nod va citi linia cu lista de adiacenta care ii apartine. Este posibil ca reteaua de noduri sa contina si cicluri. In acest caz se aplica algoritmul din curs. 
+
+Important! Dupa stabilirea topologiei, comunicatia dintre procese se va face exclusiv pe baza retelei. Orice alt fel de schimb de mesaje ce nu corespunde unei rute din tabela generata va fi depunctat.
+3. Calculare
+In urma stabilirii topologiei vor rezulta un set de relatii parinte-copil intre noduri. Fiecare parinte va stii cati copii are pe fiecare ramura.
+3.1 Aspecte algoritm
+Incepand de la nodul radacina, fiecare nod o sa-si aloce cate un patrat de dim_probl x dim_probl pe care va incerca sa-l completeze.
+
+Formatul de reprezentare a matricei ar trebui sa includa urmatoarele aspecte:
+patratele care au fost deja alocate
+patratele pe care le poate aloca mai departe o anumita ramura
+
+Daca un parinte are mai multe ramuri, aspectul b) ne ajuta ca de exemplu ramura 2 sa nu incerce sa rezolve aceleasi patrate ca ramura 1. Fara acest considerent, ambele ramuri vazand aceleasi patrate libere, s-ar putea apuca sa munceasca la aceleasi patrate. Propriu-zis, ramurei 2 ar trebui sa i se spuna de nodurile care i se vor aloca ramurei 1.
+
+Dupa ce un nod si-a ales un patrat si a pasat la fiecare ramura la ce patrate se mai poate lucra, acesta se poate apuca efectiv sa incerce sa rezolve patratul sau, relativ la datele initiale care sunt primite ca input al jocului.
+
+In momentul in care isi termina propriul patrat, acesta paseaza parintelui sau solutia patratului sau. Dupa ce paseaza patratul catre parintele sau, el va prelua patratele de la ramurile sale si va incerca sa potriveasca solutia patratului sau, cu solutiile patratelor de la copii sai. 
+
+Dupa acesti pasi, nodul curent a mai completat solutia sa cu patratelor altor noduri. Nu doar acest lucru, dar parintele sau a mai completat puzzle-ul cu datele primite de la el, iar copii sai au mai completat patratele lor folosind datele copiilor copiilor lor.
+
+
+3.2 Pseudocod pentru nod intermediar:
+receive matrix with free squares
+allocate square for self
+for each branch
+send matrix with free slots to branch
+tick slots in matrix occupied by whole branch
+compute personal square and save it to internal partial results
+while (not received message from all branches that there are no more partial results to receive from them)
+receive partial result from branches
+combine received partial results with internal partial results (sectiunea 3.3)
+if (this == root_node AND matrix complete)
+print result
+end program
+send internal partial results to parent
+
+3.3 Pseudocod pentru pasul de combinare:
+Put together the squares from my partial results with the squares from the received partial results
+Does the new partial result still the respect the row-column and inside-square non-duplicate rule?
+if true => the new partial solution is good, store it so it can be combined later with other partial solutions for the other non computed squares.
+if false => throw it away
+4. Testare si rulare
+Tema va primi ca parametri in linia de comanda, in ordinea de mai jos, urmatoarele elemente:
+numele fisierului ce contine topologia retelei de procese MPI
+numele fisierului de intrare ce va contine dimensiunea problemei impreuna cu matricea incompleta. Pe prima linie se va gasi dimensiunea problemei (dim_probl), urmata de dim_probl2 linii cu valorile fiecarei casute din matricea de rezolvat, separate prin spatiu; valoarea 0 va insemna ca respectiva casuta nu a fost completa.
+numele fisierului de iesire ce va contine dimensiunea problemei impreuna cu rezultatul corect generat. Pe prima linie se va gasi dimensiunea problemei (dim_probl), urmata de dim_probl2 linii ce contin matricea cu valori completate, separate prin spatiu.
+
+
+Exemplu rulare tema:
+mpirun -np 10 ./tema3 <fisier_topologie> <fisier_intrare_sudoku> <fisier_output_sudoku>
+
+Restictii si precizari: 
+1 < dim_probl <= 4
+numarul de procese este egal cu dim_probl2
+in cazul in care exista mai multe matrici rezultat, se va scrie in fisierul de iesire doar prima astfel de matrice gasita
+
+Exemplu de fisiere sudoku de intrare si iesire:
+sudoku-input.txt:
+2
+0 0 0 1
+0 1 2 0
+0 3 4 0
+4 0 0 0
+
+sudoku-output.txt
+2
+2 4 3 1
+3 1 2 4
+1 3 4 2
+4 2 1 3
+
+5. Notare
+Ca tema sa fie considerata corecta, pe langa afisarea unei solutii corecte, programul trebuie sa se termine gracefully. Asta inseamna urmatoarele aspecte:
+Toate cozile de comunicare sunt goale.
+Toate procesele se inchid la sfarsitul rularii algoritmului.
+
+Pentru a va testa tema, o serie de fisiere de intrare si de iesire se gasesc in arhiva atasata enuntului.
+6. Continutul arhivei temei
+Arhiva temei va contine codul sursa pentru tema impreuna cu un fisier README.txt in care sa descrieti implementarea si un fisier Makefile reprezentand pasii de compilare (trebuie sa existe cel putin regulile de build si clean).

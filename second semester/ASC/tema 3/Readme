@@ -1,0 +1,42 @@
+Rotaru Alexandru Andrei 335CC
+
+Observatie: Daca ai ajuns aci ca sa te uiti la un model de tema pt ca nu ai idee
+de cum sa incepi tema de CELL vreau sa stii ca imi pare rau de tine si ca si eu
+am suferit cumplit la tema asta.
+
+In implementarea temei am folosit codul din rezolvarea laboratorului 8 ca punct de pornire,
+codul pus in scheletul de cod din tema si o parte din rezolvarea laboratorului 9 pentru
+double buffering.
+
+In ppu am modificat process single. Am definit 2 vectori pentru id-urile threadurilor deschise de ppu si
+argumentelete functiilor date spre executie threadurilor. Argumentele sunt de tipul message_t definit in
+lab8_common.h de mine si contin pointer catre date, pointer catre cheie, numarul de int-uri de transmis,
+si variabile pentry stocarea optiunilor date in linie de comanda. La final am pus inca un membru pentru ca
+strutura sa aiba dimensiunea  multiplu de 16 octeti.
+Inainte sa trimit aceste argumete threadurilor le setez cu valorile aferente, in cazul datelor pointerul
+va varia in functie de indexul threadului.
+
+In spu am scris inca 2 functii pentru a putea face prelucrarea vectoriala. In aceste functii creez pentru
+constantele utilizate in functiile simple de criptare vectori de 4 eleemnte ce au toate elementele egale cu
+constantele respective. Separ vecotrul initial in 2 vectori ce retin elementele de pe poztiile pare si
+respectiv impare si operez pe acesti vectori. Pentur shiftari am folosit spu_sl si spu_rlmask. Dupa prelucrarea
+datelor refac din cei 2 vecotri vectorul initial;
+
+Pentru mecanismul de double buffering procesarea o fac intr-un buffer dupa ce am pornit un tranfer dma
+pentru celalat buffer. In timp ce transferul se realizeaza, prelucrarea bfferului cu date se realizeaza.
+Inainte sa fac aducerea in memorie a unor date am grija ca transferul de scriere a datelor sa se termine
+asteptand dupa tag-ul bufferului curent.
+
+
+Pentru un anumit fisier, deoarece numarul de octeti se imparte in mod egal la spu-uri, durata de prelucrare
+dureaza invers proportional cu numarul de threaduri. In figurile adugate linia rosie reprezinta rularea
+fiserelor cu un anumit numar de threaduri si se observa cum timpul scade de la un numar de threaduri la
+un numar de threaduri mai mare.
+
+In privinta vectorizarii pe grafice (linia verde) se observa cum timpii de prelucraii folosind aceasta tehnica
+reduce de aproximativ 4 ori timpul de prelucrare, deoarece datorita arhitecturii cell, registii pot prelucra
+cate 4 int-uri o data si deci timpul scade de 4 ori.
+
+La folosirea double buffering timpul de prelucrare scade foarte putin doarece in implementarea mea de
+double-buffering inainte sa fac mfc_get, astept ca o eventuala operatie de mfc_put sa se termina pe
+bufferul respectiv. Din aceasta cauza aparent nu scade timpul sesizabil.

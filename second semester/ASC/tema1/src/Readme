@@ -1,0 +1,37 @@
+Rotaru Alexandru Andrei 335CC
+
+Implementarea temei:
+    Pentru sincronizare folosesc doar evenimentul script_received,
+    si am mai adaugat o bariera reentranta pentru alinierea device
+    threadurilor. De asemenea am adaugat in fiecare device lock-uri
+    pentru a face functiile get data si set data thread safe.
+
+    In setup data initializez toate device-urile cu lista tuturor
+    device-urilor, primul device din lista facand si o initializare
+    a work-pool-ului comun, a barierei, si a unui dictionar in care
+    mentint locuri asociate cu fiecare locatie in parte. Am pornit de
+    la premisa ca setup device se apeleaza secvential.
+
+    In thread-ul device-ului verific lista de vecini actuali si astept
+    semnalul de script_received.
+    Dupa aceasta fiecare device isi intrduce scripturile sub forma de
+    task-uri in work-pool si asteapta ca semnalul de work-finish sa fie
+    setat, semnificand ca pentru timepoint curent work-pool-ul si-a terminate
+    treaba. Prelucrarea in work-pool se face in paralel si incepe imediat ce
+    primul task a fost inserat. Dupa ce am terminat de adaugat taskurile
+    toate threadurile astepata ca pool-ul sa-si termine treaba pentru timepoint
+    -ul curent. Deoarece in momentul in care adaug un task resetez evenimentul
+    de no_task, apelul finish_work() este blocant pana cand toate scripturile
+    sunt executate. Pentru a nu permite device-threadurilor sa isi introduca
+    scripturile inainte ca alte threaduri sa fi terminat de primit scripturi
+    resetez semnalul de script received si astept ca toate threadurile sa se
+    alinieze la bariera.
+
+    Work-pool: folosesc o lista de taskuri, un loc pentru scrierea si citirea
+    din aceasta lista, un semafor pentru a semnala faptul can exista taskuri
+    de executat si pentru a evita bussy waiting si bineinteles o lista de
+    workeri. La fiecare adaugarea de task incrementez semanforul, astfel incat
+    unul dintre threadurile care asteapta sa poata incepe lucrul.
+
+    Timp de lucru: 8 ore
+    Dificultatea: medie

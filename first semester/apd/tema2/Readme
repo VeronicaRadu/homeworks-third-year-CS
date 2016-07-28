@@ -1,0 +1,19 @@
+Rotaru Alexandru Andrei 335CC
+Timp de lucru : 8 ore
+
+Implementare: MapReduce
+	Am creat clase pentru a reprezenta datele de intrare si de iesire din fiecare
+	stagiu. Am o clasa pentru Taskurile ce intra in workpoolul de map, rezultate 
+	ce ies din map workpool. Fac conversia intre rezultatele map si intrarile 
+	workpoolului de reduce si la final rezultatele sunt in format afisabil in fisier.
+	
+	Pentu workpool-uri am folosit clasa ExecutorService impreuna cu protocolul impus
+	de aceasta pentru a crea taskuri. Pentru fiecare task creez un obiect de tip
+	Runnable care sa execute taskul si il intr-oduc in obiectul de tip Executor.
+
+	Am creeat 2 workpooluri: unul pentru operatiile de tip Map si unul pentru operatiile
+	de tip reduce. Pentru a nu aparea probleme de sincronizare intre threaduri am
+	pus niste timpi foarte mari pentru timeout pentru ca threadurile sa nu fie 
+	fortate sa se inchida.
+
+

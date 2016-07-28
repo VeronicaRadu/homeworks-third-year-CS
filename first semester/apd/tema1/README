@@ -1,0 +1,78 @@
+Rotaru Alexandru Andrei 335CC
+
+Tested using cluster fep.grid.pub.ro on a 8-core machine.
+Over 8 threads the time did not shrink any more so it was an 8-core machine.
+
+Parallel Image Resizer (homework.h, homework.c, main.c)
+	-> Used a struct in which I populate the matrix of pixels
+	according with the type of the image. If it is a .pgm file
+	I populate gPixels(gray pixels), otherwise I populate cPixels(color
+	pixels).
+	-> For resizing I calculate the width and height of the output
+	image and then proceed to compute the value of every pixel. If 
+	the resize factor is 3 the pixel is computed with Gaussian
+	Kernel else if it is an even number the pixel is computed as
+	average. Every pixel is computed from a block of resizeFactor x
+	resizeFactor.
+	-> Scalability: For a picture of resolution 30000x4500 these 
+	are the results on an 8-core machine:
+
+	file.pnm resizefactor 2 ThreadCount 1 -> Time = 2.134695
+	file.pnm resizefactor 2 ThreadCount 2 -> Time = 1.097640
+	file.pnm resizefactor 2 ThreadCount 4 -> Time = 0.575346
+	file.pnm resizefactor 2 ThreadCount 8 -> Time = 0.302760
+
+	file.pnm resizefactor 3 ThreadCount 1 -> Time = 2.279311
+	file.pnm resizefactor 3 ThreadCount 2 -> Time = 1.169098
+	file.pnm resizefactor 3 ThreadCount 4 -> Time = 0.599063
+	file.pnm resizefactor 3 ThreadCount 8 -> Time = 0.309510
+
+	file.pnm resizefactor 8 ThreadCount 1 -> Time = 1.245503
+	file.pnm resizefactor 8 ThreadCount 2 -> Time = 0.642174
+	file.pnm resizefactor 8 ThreadCount 4 -> Time = 0.323075
+	file.pnm resizefactor 8 ThreadCount 8 -> Time = 0.161533
+
+	file.pgm resizefactor 2 ThreadCount 1 -> Time = 1.285636
+	file.pgm resizefactor 2 ThreadCount 2 -> Time = 0.672302
+	file.pgm resizefactor 2 ThreadCount 4 -> Time = 0.342439
+	file.pgm resizefactor 2 ThreadCount 8 -> Time = 0.177852
+
+	file.pgm resizefactor 3 ThreadCount 1 -> Time = 0.962012
+	file.pgm resizefactor 3 ThreadCount 2 -> Time = 0.497359
+	file.pgm resizefactor 3 ThreadCount 4 -> Time = 0.253199
+	file.pgm resizefactor 3 ThreadCount 8 -> Time = 0.128222
+	
+	file.pgm resizefactor 8 ThreadCount 1 -> Time = 0.655152
+	file.pgm resizefactor 8 ThreadCount 2 -> Time = 0.333348
+	file.pgm resizefactor 8 ThreadCount 4 -> Time = 0.169066
+	file.pgm resizefactor 8 ThreadCount 8 -> Time = 0.084545
+
+	Obs: The time shrinks almost linearly with the number of
+	threads so the program is scallble.
+
+Parallel Function Renderer
+	-> Used the same structure as in previous problem for image.
+	-> Compute the line of function y = x / 2 with a line units
+	wide, as the square has 10000 units(100 units on edge). This
+	program can create a picture of any resolution and still 
+	conserve the properties mention above (line 3% wide);
+	For this, first is computed on a matrix of 100x100 the function,
+	changing the value of the elements that are on the function's 
+	graph. The axis center is in the up-left corner. After this 
+	the picture is scaled to the requested resolution, the blocks 
+	representing the black pixels are filled with black and the 
+	picture is rotated when it is written in the file.
+	-> Scalability: For the requested resolution these are the 
+	results:
+
+	Resolution = 25000 x 25000 
+	ThreadCount = 1 -> Time = 0.039457		
+	ThreadCount = 2 -> Time = 0.021635	//~=0.024
+	ThreadCount = 4 -> Time = 0.012526	//~=0.012
+	ThreadCount = 8 -> Time = 0.007246	//~=0.006
+
+	Ignoring the overhead resulted from creating the threads and the 
+	fluctuations, this program is also scalable. Observing the 
+	differences with a fluctuation in the rangeof [0:10] ms we can 
+	conclude that the shrinking is linear with the growth of the number 
+	of the threads.

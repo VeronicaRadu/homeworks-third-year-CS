@@ -1,0 +1,36 @@
+Rotaru Alexandru Andrei 335CC Tema3 APD
+
+Pentru rezolvarea temei am folosit c++. Compilarea se face cu mpic++.
+Implementare:
+	- am clasa Topology ce retine o matrice de adiacenta pentru graful proceselor
+	si un vector ce reprezinta tabela de rutare a procesului. In tabela al i element
+	reprezinta next-hop-ul catre procesul cu id i.
+	- am clasa Process ce retine o variabila de tip Topology, id-ul procesului parinte
+	, id curent. Cu acestea interactionez cand determin topologia folosind algoritmi de 
+	determinare a toplogiei. Metodele DiscoverTopology() si ComputeRoutingTable()
+	fac prima parte a temei. De asemenea algoritmul ruleaza si pe grafuri ce contin cicluri.
+	De asemenea am un obiect de tip SudokuMatrixPart ce reprezinta bucata de tabela
+	ce o va rezolva procesul curent. Un obiect SudokuTable ce reprezinta 
+	tabela intreaga ce trebuie rezolvata de program(cea citita din fisierul de input) pe
+	 care o folosesc la generarea solutiilor proprii dar si pentru verficarea compatibilitatii intre
+	 mai multe solutii cand combin solutiile primite de la fii. De asemenea mai 
+	 retin un vector in care retin toate solutiile obtinute in urma combinariilor(le tin
+	 sub forma de string deoarece le tine serializate). Si un vector de vectori de string
+	 in care retin toate solutiile partiale primite de la fii impreuna cu solutiile
+	 generate de procesul curent(pentru procesul curent retin pe ultima pozitie in vector solutiile)
+	 Retinerea de solutii se face doar in vectori de string doarece toate matricile 
+	 generate le serializez.
+	 
+	 - pentru rezolvarea problemei: toate procesele isi genereaza solutii pentru 
+	 partea lor de tabela de sudoku. Apoi procesele frunza incep transmiterea acestor
+	 solutii proceselor parinte. Procesul parinte dupa ce a primit toate solutiile 
+	 de la procesele copii, incepe sa le combine prin backtracking. 
+	 De exemplu daca un proces are 2 fii, el va avea un vector de 3 vectori de string.
+	 Generarea solutiile se face astfel, se ia prima solutie solutiile unui fiu
+	 si se introduce in tabela de joc, daca nu apar conflicte, se continua cu solutiile de la 
+	 urmatorul proces, daca exista conflicte se incearca urmatoarea solutie.
+	 
+	 La final se scrie in fisier solutia iar procele is afiseaza tabelele de rutare.
+	 
+	 Timp de lucru aproximativ : 10 de ore
+	 Foarte interesanta tema, liked it !
